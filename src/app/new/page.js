@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import TimeKeeper from 'react-timekeeper';
+import { addOrder } from '@/lib/db';
 
 const MENU_CATEGORIES = {
   "Samosa": [
@@ -154,22 +155,12 @@ export default function NewOrder() {
     };
 
     try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submitData),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        const link = generateWhatsappMessage(orderDetailsStr);
-        setWhatsappLink(link);
-      } else {
-        alert('Failed to save order.');
-      }
+      const newOrder = await addOrder(submitData);
+      const link = generateWhatsappMessage(orderDetailsStr);
+      setWhatsappLink(link);
     } catch (err) {
       console.error(err);
-      alert('An error occurred.');
+      alert(`Error saving order: ${err.message || 'Unknown error'}. Please check if you are logged in or if Firestore database is enabled.`);
     } finally {
       setLoading(false);
     }

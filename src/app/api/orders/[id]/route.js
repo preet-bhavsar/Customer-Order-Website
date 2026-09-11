@@ -14,11 +14,11 @@ export async function PATCH(request, { params }) {
     let updatedOrder;
 
     if (status) {
-      updatedOrder = updateOrderStatus(id, status, employeeName);
+      updatedOrder = await updateOrderStatus(id, status, employeeName);
     }
 
     if (orderDetails !== undefined || totalAmount !== undefined || advancePayment !== undefined || paymentMethod !== undefined) {
-      updatedOrder = updateOrderDetails(id, { orderDetails, totalAmount, advancePayment, paymentMethod });
+      updatedOrder = await updateOrderDetails(id, { orderDetails, totalAmount, advancePayment, paymentMethod });
     }
 
     if (!updatedOrder) {
@@ -44,7 +44,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ success: false, error: 'Order ID is required' }, { status: 400 });
     }
 
-    deleteOrder(id);
+    await deleteOrder(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(`Failed to delete order:`, error);

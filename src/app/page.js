@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import OrderDetailsDrawer from '@/components/orders/OrderDetailsDrawer';
+import { getOrders, updateOrderStatus } from '@/lib/db';
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([]);
@@ -8,23 +9,20 @@ export default function Dashboard() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
-  const fetchOrders = () => {
-    fetch('/api/orders')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setOrders(data.data);
-          if (selectedOrder) {
-            const updated = data.data.find(o => o.id === selectedOrder.id);
-            if (updated) setSelectedOrder(updated);
-          }
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+  const fetchOrders = async () => {
+    try {
+      const data = await getOrders();
+      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setOrders(data);
+      if (selectedOrder) {
+        const updated = data.find(o => o.id === selectedOrder.id);
+        if (updated) setSelectedOrder(updated);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -39,19 +37,9 @@ export default function Dashboard() {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus, employeeName: 'Employee' })
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        showToast(`Order status updated to ${newStatus}`);
-        fetchOrders();
-      } else {
-        alert(data.error || 'Failed to update status');
-      }
+      await updateOrderStatus(orderId, newStatus, 'Employee');
+      showToast(`Order status updated to ${newStatus}`);
+      fetchOrders();
     } catch (err) {
       console.error(err);
       alert('An error occurred while updating status.');

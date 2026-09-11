@@ -1,24 +1,29 @@
-import fs from 'fs';
-import path from 'path';
+import { db } from './firebase';
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  getDoc 
+} from 'firebase/firestore';
 
-const dbPath = path.join(process.cwd(), 'orders.json');
+// Reference to the 'orders' collection
+const ordersCollection = collection(db, 'orders');
 
-// Initialize DB if not exists
-if (!fs.existsSync(dbPath)) {
-  fs.writeFileSync(dbPath, JSON.stringify([]));
+export async function getOrders() {
+  const snapshot = await getDocs(ordersCollection);
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 }
 
-export function getOrders() {
-  const data = fs.readFileSync(dbPath, 'utf8');
-  return JSON.parse(data);
-}
-
-export function addOrder(order) {
-  const orders = getOrders();
+export async function addOrder(order) {
   const timestamp = new Date().toISOString();
   
-  const newOrder = {
-    id: Date.now(),
+  const newOrderData = {
     ...order,
     status: 'Pending',
     statusUpdatedAt: timestamp,
@@ -33,84 +38,84 @@ export function addOrder(order) {
     ],
     createdAt: timestamp
   };
-  orders.push(newOrder);
-  fs.writeFileSync(dbPath, JSON.stringify(orders, null, 2));
-  return newOrder;
+
+  const docRef = await addDoc(ordersCollection, newOrderData);
+  return { id: docRef.id, ...newOrderData };
 }
 
-export function updateOrderStatus(orderId, newStatus, updatedBy = 'Employee') {
-  const orders = getOrders();
-  const orderIndex = orders.findIndex(o => o.id.toString() === orderId.toString());
+export async function updateOrderStatus(orderId, newStatus, updatedBy = 'Employee') {
+  const orderRef = doc(db, 'orders', orderId.toString());
+  const orderSnap = await getDoc(orderRef);
   
-  if (orderIndex === -1) {
+  if (!orderSnap.exists()) {
     throw new Error('Order not found');
   }
 
-  const order = orders[orderIndex];
-  const previousStatus = order.status;
+  const orderData = orderSnap.data();
+  const previousStatus = orderData.status;
   const timestamp = new Date().toISOString();
 
   // If status is the same, do nothing
   if (previousStatus === newStatus) {
-    return order;
+    return { id: orderId, ...orderData };
   }
 
-  order.status = newStatus;
-  order.statusUpdatedAt = timestamp;
-  order.statusUpdatedBy = updatedBy;
-
-  if (!order.statusHistory) {
-    order.statusHistory = [];
-  }
-
-  order.statusHistory.push({
+  const newStatusHistory = orderData.statusHistory || [];
+  newStatusHistory.push({
     previousStatus,
     newStatus,
     timestamp,
     employee: updatedBy
   });
 
-  orders[orderIndex] = order;
-  fs.writeFileSync(dbPath, JSON.stringify(orders, null, 2));
+  const updates = {
+    status: newStatus,
+    statusUpdatedAt: timestamp,
+    statusUpdatedBy: updatedBy,
+    statusHistory: newStatusHistory
+  };
+
+  await updateDoc(orderRef, updates);
   
-  return order;
+  return { id: orderId, ...orderData, ...updates };
 }
 
-export function updateOrderDetails(orderId, updates) {
-  const orders = getOrders();
-  const orderIndex = orders.findIndex(o => o.id.toString() === orderId.toString());
+export async function updateOrderDetails(orderId, updates) {
+  const orderRef = doc(db, 'orders', orderId.toString());
+  const orderSnap = await getDoc(orderRef);
   
-  if (orderIndex === -1) {
+  if (!orderSnap.exists()) {
     throw new Error('Order not found');
   }
 
-  const order = orders[orderIndex];
+  const orderData = orderSnap.data();
   
-  if (updates.orderDetails !== undefined) order.orderDetails = updates.orderDetails;
-  if (updates.totalAmount !== undefined) order.totalAmount = Number(updates.totalAmount);
-  if (updates.advancePayment !== undefined) order.advancePayment = Number(updates.advancePayment);
-  if (updates.paymentMethod !== undefined) order.paymentMethod = updates.paymentMethod;
+  const updatedData = {};
+  if (updates.orderDetails !== undefined) updatedData.orderDetails = updates.orderDetails;
+  if (updates.totalAmount !== undefined) updatedData.totalAmount = Number(updates.totalAmount);
+  if (updates.advancePayment !== undefined) updatedData.advancePayment = Number(updates.advancePayment);
+  if (updates.paymentMethod !== undefined) updatedData.paymentMethod = updates.paymentMethod;
   
-  if (updates.totalAmount !== undefined || updates.advancePayment !== undefined) {
-    order.remainingPayment = order.totalAmount - order.advancePayment;
+  const newTotalAmount = updatedData.totalAmount !== undefined ? updatedData.totalAmount : orderData.totalAmount;
+  const newAdvancePayment = updatedData.advancePayment !== undefined ? updatedData.advancePayment : orderData.advancePayment;
+  
+  if (newTotalAmount !== undefined && newAdvancePayment !== undefined) {
+    updatedData.remainingPayment = newTotalAmount - newAdvancePayment;
   }
 
-  orders[orderIndex] = order;
-  fs.writeFileSync(dbPath, JSON.stringify(orders, null, 2));
+  await updateDoc(orderRef, updatedData);
   
-  return order;
+  return { id: orderId, ...orderData, ...updatedData };
 }
 
-export function deleteOrder(orderId) {
-  const orders = getOrders();
-  const orderIndex = orders.findIndex(o => o.id.toString() === orderId.toString());
+export async function deleteOrder(orderId) {
+  const orderRef = doc(db, 'orders', orderId.toString());
+  const orderSnap = await getDoc(orderRef);
   
-  if (orderIndex === -1) {
+  if (!orderSnap.exists()) {
     throw new Error('Order not found');
   }
 
-  orders.splice(orderIndex, 1);
-  fs.writeFileSync(dbPath, JSON.stringify(orders, null, 2));
-  
+  await deleteDoc(orderRef);
   return true;
 }

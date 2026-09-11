@@ -3,6 +3,7 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import { X, Clock, CheckCircle2, AlertCircle, Edit2, Check, X as XIcon, Trash2 } from 'lucide-react';
+import { updateOrderDetails, deleteOrder as deleteOrderFromDb } from '@/lib/db';
 
 const STATUS_OPTIONS = [
   'Pending',
@@ -167,25 +168,16 @@ export default function OrderDetailsDrawer({ order, onClose, onStatusUpdate, onO
   const saveOrderDetails = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/orders/${order.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderDetails: generateOrderDetailsString(),
-          totalAmount: editedTotal,
-          advancePayment: editedAdvance,
-          paymentMethod: editedPaymentMethod
-        })
+      await updateOrderDetails(order.id, {
+        orderDetails: generateOrderDetailsString(),
+        totalAmount: editedTotal,
+        advancePayment: editedAdvance,
+        paymentMethod: editedPaymentMethod
       });
-      const data = await res.json();
-      if (data.success) {
-        if (onOrderUpdated) {
-          onOrderUpdated('Order details updated');
-        }
-        setIsEditing(false);
-      } else {
-        alert(data.error || 'Failed to update order details');
+      if (onOrderUpdated) {
+        onOrderUpdated('Order details updated');
       }
+      setIsEditing(false);
     } catch (err) {
       console.error(err);
       alert('An error occurred while saving details.');
@@ -197,18 +189,11 @@ export default function OrderDetailsDrawer({ order, onClose, onStatusUpdate, onO
   const deleteOrder = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/orders/${order.id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (onOrderUpdated) {
-          onOrderUpdated('Order deleted successfully');
-        }
-        onClose();
-      } else {
-        alert(data.error || 'Failed to delete order');
+      await deleteOrderFromDb(order.id);
+      if (onOrderUpdated) {
+        onOrderUpdated('Order deleted successfully');
       }
+      onClose();
     } catch (err) {
       console.error(err);
       alert('An error occurred while deleting the order.');

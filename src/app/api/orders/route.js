@@ -3,7 +3,7 @@ import { getOrders, addOrder } from '@/lib/db';
 
 export async function GET() {
   try {
-    const orders = getOrders();
+    const orders = await getOrders();
     // Sort by createdAt descending
     orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return NextResponse.json({ success: true, data: orders });
@@ -31,7 +31,7 @@ export async function POST(request) {
     const parsedAdvance = parseFloat(advancePayment);
     const remainingPayment = parsedTotal - parsedAdvance;
 
-    const newOrder = addOrder({
+    const newOrder = await addOrder({
       customerName,
       whatsappNumber,
       orderDetails,

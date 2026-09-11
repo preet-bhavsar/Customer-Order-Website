@@ -1,49 +1,26 @@
 [
   {
-    "id": 1789113016686,
-    "customerName": "Preet Bhavsar",
+    "id": 1789123924649,
+    "customerName": "Preet",
     "whatsappNumber": "9327546681",
-    "orderDetails": "100 x Punjabi Samosa (1 Pcs) @ ₹10, 5 x Dal Khaman (1 kg) @ ₹200",
-    "orderDate": "2026-09-11",
-    "orderTime": "10:00",
-    "totalAmount": 2000,
-    "advancePayment": 500,
-    "remainingPayment": 1500,
-    "status": "Pending",
-    "statusUpdatedAt": "2026-09-11T07:50:16.686Z",
-    "statusUpdatedBy": "System",
-    "statusHistory": [
-      {
-        "previousStatus": null,
-        "newStatus": "Pending",
-        "timestamp": "2026-09-11T07:50:16.686Z",
-        "employee": "System"
-      }
-    ],
-    "createdAt": "2026-09-11T07:50:16.686Z"
-  },
-  {
-    "id": 1789120315227,
-    "customerName": "abc",
-    "whatsappNumber": "7985236410",
     "orderDetails": "100 x Punjabi Samosa (1 Pcs) @ ₹10",
-    "orderDate": "2026-09-11",
-    "orderTime": "23:05",
+    "orderDate": "2026-09-12",
+    "orderTime": "10:00",
     "totalAmount": 1000,
-    "advancePayment": 500,
-    "remainingPayment": 500,
-    "paymentMethod": "Online UPI",
+    "advancePayment": 183,
+    "remainingPayment": 817,
+    "paymentMethod": "Cash",
     "status": "Pending",
-    "statusUpdatedAt": "2026-09-11T09:51:55.227Z",
+    "statusUpdatedAt": "2026-09-11T10:52:04.649Z",
     "statusUpdatedBy": "System",
     "statusHistory": [
       {
         "previousStatus": null,
         "newStatus": "Pending",
-        "timestamp": "2026-09-11T09:51:55.227Z",
+        "timestamp": "2026-09-11T10:52:04.649Z",
         "employee": "System"
       }
     ],
-    "createdAt": "2026-09-11T09:51:55.227Z"
+    "createdAt": "2026-09-11T10:52:04.649Z"
   }
 ]
