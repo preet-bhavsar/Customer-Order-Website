@@ -185,24 +185,24 @@ export default function Orders() {
                     onClick={() => setSelectedOrder(order)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.85rem' }}>SSC-{order.id.toString().slice(-4)}</td>
-                    <td>
+                    <td data-label="ID" style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.85rem' }}>SSC-{order.id.toString().slice(-4)}</td>
+                    <td data-label="Customer">
                       <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{order.customerName}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{order.whatsappNumber}</div>
                     </td>
-                    <td>
+                    <td data-label="Items Summary">
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {order.orderDetails}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Pickup">
                       <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{order.orderDate}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatTimeAMPM(order.orderTime)}</div>
                     </td>
-                    <td style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                    <td data-label="Amount" style={{ fontWeight: 600, fontSize: '0.9rem' }}>
                       ₹{order.totalAmount}
                     </td>
-                    <td>
+                    <td data-label="Payment">
                       <div style={{ fontSize: '0.8rem', color: order.remainingPayment <= 0 ? 'var(--success)' : 'var(--danger)' }}>
                         {order.remainingPayment <= 0 ? 'Paid' : `Bal: ₹${order.remainingPayment}`}
                       </div>
@@ -210,12 +210,12 @@ export default function Orders() {
                         {order.paymentMethod || 'Cash'}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <Badge variant={getStatusBadgeVariant(order.status || 'Pending')}>
                         {order.status || 'Pending'}
                       </Badge>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td data-label="Actions" style={{ textAlign: 'center' }}>
                       <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
                         <MoreVertical size={16} />
                       </button>

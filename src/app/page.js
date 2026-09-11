@@ -91,19 +91,19 @@ export default function Dashboard() {
                   onClick={() => setSelectedOrder(order)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td>
+                  <td data-label="Date / Time">
                     <div style={{ fontWeight: 500 }}>{order.orderDate}</div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{order.orderTime}</div>
                   </td>
-                  <td>
+                  <td data-label="Customer">
                     <div style={{ fontWeight: 500 }}>{order.customerName}</div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{order.whatsappNumber}</div>
                   </td>
-                  <td>{order.orderDetails}</td>
-                  <td style={{ fontWeight: 600 }}>₹{order.totalAmount}</td>
-                  <td style={{ color: 'var(--success)', fontWeight: 500 }}>₹{order.advancePayment}</td>
-                  <td style={{ color: 'var(--danger)', fontWeight: 600 }}>₹{order.remainingPayment}</td>
-                  <td>
+                  <td data-label="Order Details">{order.orderDetails}</td>
+                  <td data-label="Total (₹)" style={{ fontWeight: 600 }}>₹{order.totalAmount}</td>
+                  <td data-label="Advance (₹)" style={{ color: 'var(--success)', fontWeight: 500 }}>₹{order.advancePayment}</td>
+                  <td data-label="Remaining (₹)" style={{ color: 'var(--danger)', fontWeight: 600 }}>₹{order.remainingPayment}</td>
+                  <td data-label="Status">
                     <span className="badge badge-pending">
                       {order.status || 'Pending'}
                     </span>
